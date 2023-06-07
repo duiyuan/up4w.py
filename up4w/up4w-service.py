@@ -7,17 +7,19 @@ from os.path import join, exists, dirname, abspath
 from sys import platform
 
 
-fd1, fd2 = Pipe()
-
-
-def start_up4w(fd, apppath, dll_path):
+def start_up4w(child_conn, apppath, dll_path):
     loader = CDLL(dll_path)
     start = loader.start(f"-data={apppath}")
     port = loader.get_api_port()
-    fd.send(dumps({"port": port, "ret": start, "pid": os.getpid()}))
-    # The dynamic link library will run a websocket service
-    # Keep the process alive, prevent the gc from collecting it
-    # time.sleep(3600 * 24 * 365 * 10)
+    child_conn.send(dumps({"port": port, "ret": start, "pid": os.getpid()}))
+
+    while True:
+        signal = child_conn.poll()
+        if signal:
+            data = child_conn.recv()
+            if data:
+                child_conn.close()
+                break
 
 
 class Up4wService:
@@ -25,6 +27,9 @@ class Up4wService:
         self.debug = bool(debug)
         self.addons_path = abspath(join(os.curdir, "addons"))
         self.appdata = appdata
+        self.child = None
+
+        self.parent_conn, self.child_conn = Pipe()
 
         # windows -> dll
         if platform == "win32":
@@ -38,30 +43,32 @@ class Up4wService:
         else:
             raise Exception("Unsupported platform")
 
-    @staticmethod
-    def recv(fd):
-        data = fd.recv()
-        return data
-
     def start(self):
         appdata = self.appdata
         if not exists(self.file_path):
             raise Exception("File does not exist :" + self.file_path)
-        print(self.file_path)
 
-        child = Process(target=start_up4w, args=(fd1, appdata, self.file_path))
-        # parent = Process(target=self.recv, args=(fd2,))
-        child.start()
-        # parent.start()
-        child.join()
-        # parent.join()
-        return self.recv(fd2)
+        self.child = Process(target=start_up4w, args=(self.child_conn, appdata, self.file_path))
+        self.child.start()
+
+        data = self.parent_conn.recv()
+        return data
+
+    def stop(self):
+        self.parent_conn.send(True)
+        self.child.join()
+        self.child = None
 
 
 if __name__ == "__main__":
     server = Up4wService()
+
     ep = server.start()
-    print(ep)
+    print("ep.", ep)
+
+    # time.sleep(3)
+    # server.stop()
+
 
 
 
