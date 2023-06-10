@@ -1,10 +1,8 @@
 from ctypes import CDLL
 import os
-import time
 import shutil
 from multiprocessing import Process, Pipe, Event
-from json import dumps, loads
-from os.path import join, exists, dirname, abspath
+from os.path import join, exists, abspath
 from sys import platform
 
 
@@ -28,7 +26,7 @@ def start_up4w(child_conn, apppath, dll_path):
     #             break
 
 
-class Up4wService:
+class Up4wServer:
     def __init__(self, *, debug=False, appdata=os.getenv("APPDATA")):
         self.debug = bool(debug)
         self.addons_path = abspath(join(os.curdir, "addons"))
@@ -84,12 +82,10 @@ class Up4wService:
 
 
 if __name__ == "__main__":
-    server = Up4wService()
+    server = Up4wServer()
     ep = server.start()
     print("ep:", ep)
 
-    # time.sleep(15)
-    # server.stop()
 
 
 

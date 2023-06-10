@@ -7,7 +7,7 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'up4w-py'
-DESCRIPTION = 'A python library interact with UP4W network'
+DESCRIPTION = 'A python library interact with UP4w network'
 URL = 'https://github.com/up4w/up4w.py'
 EMAIL = 'bornforthis@bornforthis.cn'
 AUTHOR = 'up4w-devteam'
@@ -16,7 +16,8 @@ VERSION = '1.0.0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    # 'dotenv==0.0.5',
+    "websockets>=11.0.0",
+    "requests>=2.31.0"
 ]
 
 # What packages are optional?

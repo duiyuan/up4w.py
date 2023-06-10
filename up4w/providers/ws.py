@@ -2,7 +2,7 @@ import asyncio
 import websockets
 
 
-class Websocket:
+class WSProvider:
     def __init__(self, *, endpoint):
         self.endpoint = endpoint
         self.start()
@@ -13,3 +13,19 @@ class Websocket:
 
     def start(self):
         asyncio.run(self.__connect())
+
+    @staticmethod
+    def support_subscription():
+        return True
+
+    @staticmethod
+    def on(event, payload):
+        pass
+
+    @staticmethod
+    def emit(event, payload):
+        pass
+
+    @staticmethod
+    def reset():
+        pass
