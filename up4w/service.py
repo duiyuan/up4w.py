@@ -2,7 +2,7 @@ from ctypes import CDLL
 import os
 import shutil
 from multiprocessing import Process, Pipe, Event
-from os.path import join, exists, abspath
+from os.path import join, exists, abspath, dirname
 from sys import platform
 
 
@@ -12,25 +12,19 @@ def start_up4w(child_conn, apppath, dll_path):
     port = loader.get_api_port()
 
     child_conn.send({"port": port, "ret": start, "pid": os.getpid()})
-
     signal = child_conn.recv()
+
     if signal:
         child_conn.close()
-
-    # while True:
-    #     signal = child_conn.poll()
-    #     if signal:
-    #         data = child_conn.recv()
-    #         if data:
-    #             child_conn.close()
-    #             break
 
 
 class Up4wServer:
     def __init__(self, *, debug=False, appdata=os.getenv("APPDATA")):
+        current_dir = dirname(__file__)
+
         self.debug = bool(debug)
-        self.addons_path = abspath(join(os.curdir, "addons"))
-        self.nodes_path = abspath(join(os.curdir, "nodes"))
+        self.addons_path = abspath(join(current_dir, "addons"))
+        self.nodes_path = abspath(join(current_dir, "nodes"))
         self.appdata = appdata
         self.child = None
 
@@ -57,7 +51,7 @@ class Up4wServer:
                 if file_type == "nodes":
                     shutil.copy2(file, self.appdata)
 
-    def start(self):
+    def run(self):
         appdata = self.appdata
         if not exists(self.file_path):
             raise Exception("File does not exist :" + self.file_path)
@@ -83,7 +77,7 @@ class Up4wServer:
 
 if __name__ == "__main__":
     server = Up4wServer()
-    ep = server.start()
+    ep = server.run()
     print("ep:", ep)
 
 

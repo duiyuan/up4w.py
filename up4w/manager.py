@@ -40,7 +40,7 @@ class RequestManager:
     def should_drop():
         return True
 
-    def send(self):
-        pass
+    def send(self, payload):
+        self.current_provider.send(payload)
 
 
