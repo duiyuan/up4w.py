@@ -6,19 +6,24 @@ from os.path import join, exists, abspath, dirname
 from sys import platform
 
 
-def start_up4w(child_conn, apppath, dll_path):
+def start_child_process(child_conn, apppath, dll_path):
     loader = CDLL(dll_path)
     start = loader.start(f"-data={apppath}")
     port = loader.get_api_port()
 
     child_conn.send({"port": port, "ret": start, "pid": os.getpid()})
-    signal = child_conn.recv()
 
-    if signal:
-        child_conn.close()
+    # do nothing when main process exist automatically, no message will receive
+    # in this case, unexpected EOFError will occur
+    try:
+        signal = child_conn.recv()
+        if signal:
+            child_conn.close()
+    except EOFError:
+        pass
 
 
-class Up4wServer:
+class UP4wServer:
     def __init__(self, *, debug=False, appdata=os.getenv("APPDATA")):
         current_dir = dirname(__file__)
 
@@ -57,7 +62,7 @@ class Up4wServer:
             raise Exception("File does not exist :" + self.file_path)
 
         self.preset_nodes()
-        self.child = Process(target=start_up4w, name="up4w", args=(self.child_conn, appdata, self.file_path))
+        self.child = Process(target=start_child_process, name="up4w_child_process",  args=(self.child_conn, appdata, self.file_path))
         self.child.start()
 
         data = self.parent_conn.recv()
@@ -76,7 +81,7 @@ class Up4wServer:
 
 
 if __name__ == "__main__":
-    server = Up4wServer()
+    server = UP4wServer()
     ep = server.run()
     print("ep:", ep)
 

@@ -1,6 +1,6 @@
 
 from core import Core
-from service import Up4wServer
+from service import UP4wServer
 
 
 class UP4W:

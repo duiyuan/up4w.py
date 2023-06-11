@@ -1,11 +1,13 @@
-from up4w.service import Up4wServer
+from up4w.service import UP4wServer
+import time
 
 
 def main():
-    server = Up4wServer()
+    server = UP4wServer()
     result = server.run()
-    ws_endpoint = result["availableEndpoint"]["ws"]
-    print(ws_endpoint)
+    print("r:", result)
+    time.sleep(5)
+    # server.stop()
 
 
 if __name__ == "__main__":
