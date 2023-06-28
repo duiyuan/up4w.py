@@ -2,7 +2,7 @@ import requests
 
 
 class HTTPProvider:
-    def __init__(self, *, endpoint):
+    def __init__(self, *, endpoint: str):
         self.endpoint = endpoint
         self.start()
 
