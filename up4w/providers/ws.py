@@ -1,9 +1,26 @@
 import asyncio
-from typing import Type
-from types import TracebackType
+import json
 import logging
 import websockets
 
+from up4w.types import Up4wRes, Up4wReq
+from typing import Type
+from types import TracebackType
+from threading import Thread
+from up4w.providers.base import BaseProvider
+
+
+def start_event_loop(loop: asyncio.AbstractEventLoop) -> None:
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+    loop.close()
+
+
+def get_thread_loop() -> asyncio.AbstractEventLoop:
+    new_loop = asyncio.new_event_loop()
+    thread = Thread(target=start_event_loop, args=(new_loop,), daemon=True)
+    thread.start()
+    return new_loop
 
 
 class PersistentWebsocket:
@@ -26,29 +43,34 @@ class PersistentWebsocket:
             self.ws = None
 
 
-class WSProvider:
-    def __init__(self, *, endpoint: str):
+class WSProvider(BaseProvider):
+
+    _loop: asyncio.AbstractEventLoop = get_thread_loop()
+
+    def __init__(self, *, endpoint: str, timeout: int, kwargs):
         self.endpoint = endpoint
-        self.start()
+        self.timeout = timeout
+        self.conn = PersistentWebsocket(self.endpoint, kwargs)
 
-    async def __connect(self):
-        async with websockets.connect(self.endpoint) as ws:
-            await ws.recv()
+        if WSProvider._loop is None:
+            WSProvider._loop = get_thread_loop()
+        super().__init__()
 
-    def start(self):
-        asyncio.run(self.__connect())
+    async def make_request(self, request_data: Up4wReq):
+        return asyncio.run_coroutine_threadsafe(
+            self.coro_make_request(request_data),
+            WSProvider._loop
+        )
+
+    async def coro_make_request(self, request_data) -> Up4wRes:
+        async with self.conn as conn:
+            await asyncio.wait_for(conn.send(request_data), self.timeout)
+            resp = await asyncio.wait_for(conn.recv(), self.timeout)
+            return json.loads(resp)
 
     @staticmethod
     def support_subscription():
         return True
-
-    @staticmethod
-    def on(event, payload):
-        pass
-
-    @staticmethod
-    def emit(event, payload):
-        pass
 
     @staticmethod
     def reset():
