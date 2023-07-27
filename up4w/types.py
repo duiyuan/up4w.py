@@ -5,11 +5,10 @@ T = TypeVar("T")
 K = TypeVar("K")
 
 
-class Up4wReq:
-    def __init__(self, req: str, arg: Optional[T] = None, inc: Optional[str] = None):
-        self.req = req
-        self.arg = arg
-        self.inc = inc
+class Up4wReq(TypedDict):
+    req: str
+    arg: Any
+    inc: Optional[str]
 
 
 class Up4wRes:
@@ -19,3 +18,12 @@ class Up4wRes:
         self.err = err
         self.inc = inc
         self.fin = fin
+
+
+class AvailableEndpoints(TypedDict):
+    http: str
+    ws: str
+
+
+class Up4wServiceRes(TypedDict):
+    available_endpoints: AvailableEndpoints

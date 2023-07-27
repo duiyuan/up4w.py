@@ -4,7 +4,7 @@ import logging
 import websockets
 
 from up4w.types import Up4wRes, Up4wReq
-from typing import Type
+from typing import Type, Optional, TypedDict
 from types import TracebackType
 from threading import Thread
 from up4w.providers.base import BaseProvider
@@ -31,7 +31,7 @@ class PersistentConnection:
 
     async def __aenter__(self):
         if self.ws is None:
-            self.ws = await websockets.connect(ursi=self.endpoint, **self.kwargs)
+            self.ws = await websockets.connect(uri=self.endpoint, **self.kwargs)
         return self.ws
 
     async def __aexit__(self, exec_type: Type[BaseException], exec_val: BaseException,  exec_traceback: TracebackType):
@@ -40,16 +40,17 @@ class PersistentConnection:
                 self.ws.close()
             except Exception:
                 pass
-            self.ws = None
+            finally:
+                self.ws = None
 
 
 class WSProvider(BaseProvider):
     _loop: asyncio.AbstractEventLoop = get_thread_loop()
 
-    def __init__(self, *, endpoint: str, timeout: int, kwargs):
+    def __init__(self, *, endpoint: str, timeout: int = None, kwargs):
         self.endpoint = endpoint
         self.timeout = timeout
-        self.kwargs = kwargs
+        self.kwargs = kwargs or {}
 
         if WSProvider._loop is None:
             WSProvider._loop = get_thread_loop()
@@ -65,6 +66,7 @@ class WSProvider(BaseProvider):
         return future.result()
 
     async def coroutine_make_request(self, request_data: Up4wReq) -> Up4wRes:
+        request_data = json.dumps(request_data)
         async with self.conn as conn:
             await asyncio.wait_for(
                 conn.send(request_data),
