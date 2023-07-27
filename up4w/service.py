@@ -2,7 +2,7 @@ from ctypes import CDLL
 import os
 import shutil
 from multiprocessing import Process, Pipe, Event
-from os.path import join, exists, abspath, dirname
+from os.path import join, exists, abspath, dirname, expanduser
 from sys import platform
 
 
@@ -32,6 +32,9 @@ class UP4wServer:
         self.nodes_path = abspath(join(current_dir, "nodes"))
         self.appdata = appdata
         self.child = None
+
+        if appdata is None:
+            self.appdata = expanduser('~/Library/Application Support')
 
         self.parent_conn, self.child_conn = Pipe()
         self.result_event = Event()

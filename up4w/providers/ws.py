@@ -23,7 +23,7 @@ def get_thread_loop() -> asyncio.AbstractEventLoop:
     return new_loop
 
 
-class PersistentWebsocket:
+class PersistentConnection:
     def __init__(self, endpoint: str, kwargs) -> None:
         self.ws: websockets.WebSocketClientProtocol = None
         self.endpoint = endpoint
@@ -44,34 +44,36 @@ class PersistentWebsocket:
 
 
 class WSProvider(BaseProvider):
-
     _loop: asyncio.AbstractEventLoop = get_thread_loop()
 
     def __init__(self, *, endpoint: str, timeout: int, kwargs):
         self.endpoint = endpoint
         self.timeout = timeout
-        self.conn = PersistentWebsocket(self.endpoint, kwargs)
+        self.kwargs = kwargs
 
         if WSProvider._loop is None:
             WSProvider._loop = get_thread_loop()
+
+        self.conn = PersistentConnection(self.endpoint, self.kwargs)
         super().__init__()
 
-    async def make_request(self, request_data: Up4wReq):
-        return asyncio.run_coroutine_threadsafe(
-            self.coro_make_request(request_data),
+    def make_request(self, request_data: Up4wReq):
+        future = asyncio.run_coroutine_threadsafe(
+            self.coroutine_make_request(request_data),
             WSProvider._loop
         )
+        return future.result()
 
-    async def coro_make_request(self, request_data) -> Up4wRes:
+    async def coroutine_make_request(self, request_data: Up4wReq) -> Up4wRes:
         async with self.conn as conn:
-            await asyncio.wait_for(conn.send(request_data), self.timeout)
-            resp = await asyncio.wait_for(conn.recv(), self.timeout)
+            await asyncio.wait_for(
+                conn.send(request_data),
+                self.timeout
+            )
+            resp = await asyncio.wait_for(
+                conn.recv(),
+                self.timeout
+            )
             return json.loads(resp)
 
-    @staticmethod
-    def support_subscription():
-        return True
 
-    @staticmethod
-    def reset():
-        pass
