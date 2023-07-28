@@ -4,7 +4,7 @@ import logging
 import websockets
 
 from up4w.types import Up4wRes, Up4wReq
-from typing import Type, Optional, TypedDict
+from typing import Type, Optional, TypedDict, TypeVar
 from types import TracebackType
 from threading import Thread
 from up4w.providers.base import BaseProvider
@@ -63,10 +63,11 @@ class WSProvider(BaseProvider):
             self.coroutine_make_request(request_data),
             WSProvider._loop
         )
-        return future.result()
+        data = future.result()
+        return data
 
     async def coroutine_make_request(self, request_data: Up4wReq) -> Up4wRes:
-        request_data = json.dumps(request_data)
+        request_data = self._process_request_data(request_data)
         async with self.conn as conn:
             await asyncio.wait_for(
                 conn.send(request_data),
@@ -77,5 +78,8 @@ class WSProvider(BaseProvider):
                 self.timeout
             )
             return json.loads(resp)
+
+    def can_subscribe(self) -> bool:
+        return True
 
 

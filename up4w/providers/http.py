@@ -1,29 +1,15 @@
 import requests
+from up4w.providers.base import BaseProvider
+from up4w.types import Up4wRes, Up4wReq
 
 
-class HTTPProvider:
-    def __init__(self, *, endpoint: str):
+class HTTPProvider(BaseProvider):
+    def __init__(self, *, endpoint: str, kwargs):
         self.endpoint = endpoint
-        self.start()
 
-    async def __connect(self):
-        pass
+    def make_request(self, request_data: Up4wReq):
+        raise Exception("Not implement for now")
 
-    def start(self):
-        pass
+    def can_subscribe(self):
+        return False
 
-    @staticmethod
-    def support_subscription():
-        return True
-
-    @staticmethod
-    def on(event, payload):
-        pass
-
-    @staticmethod
-    def emit(event, payload):
-        pass
-
-    @staticmethod
-    def reset():
-        pass

@@ -1,23 +1,15 @@
 
 import typing
 import asyncio
-from up4w.providers.ws import WSProvider
-from up4w.service import UP4wServer
+from up4w.request_manager import RequestManager
+from up4w.up4w import UP4W
 
 
 async def main():
-    server = UP4wServer()
-    conf = server.run()
+    up4w = UP4W()
+    version = up4w.get_ver()
 
-    ws = conf["available_endpoints"]["ws"]
-    socket = WSProvider(endpoint=ws, kwargs={})
-    data = await socket.make_request({
-        "req": "",
-        "arg": {},
-        "inc": None
-    })
-
-    print(data)
+    print(version)
 
 if __name__ == "__main__":
     asyncio.run(main())

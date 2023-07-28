@@ -25,7 +25,7 @@ def start_child_process(child_conn, apppath, dll_path):
 
 
 class UP4wServer:
-    def __init__(self, *, debug=False, appdata=os.getenv("APPDATA")):
+    def __init__(self, *, debug=False, appdata=None):
         current_dir = dirname(__file__)
 
         self.debug = bool(debug)
@@ -34,23 +34,28 @@ class UP4wServer:
         self.appdata = appdata
         self.child = None
 
+        # windows -> dll
+        if platform == "win32":
+            self.file_path = join(self.addons_path, platform, "up4w.dll")
+            self.default_appdata = os.getenv("APPDATA")
+        # macOS -> dylib
+        elif platform == "darwin":
+            self.file_path = join(self.addons_path, platform, "up4w.dylib")
+            self.default_appdata = expanduser('~/Library/Application Support')
+        # linux -> linux
+        elif platform == "linux":
+            self.file_path = join(self.addons_path, platform, "up4w.so")
+            self.default_appdata = expanduser('~/Library/Application Support')
+        else:
+            raise Exception("Unsupported platform")
+
         if appdata is None:
-            self.appdata = expanduser('~/Library/Application Support')
+            self.appdata = self.default_appdata
 
         self.parent_conn, self.child_conn = Pipe()
         self.result_event = Event()
 
-        # windows -> dll
-        if platform == "win32":
-            self.file_path = join(self.addons_path, platform, "up4w.dll")
-        # macOS -> dylib
-        elif platform == "darwin":
-            self.file_path = join(self.addons_path, platform, "up4w.dylib")
-        # linux -> linux
-        elif platform == "linux":
-            self.file_path = join(self.addons_path, platform, "up4w.so")
-        else:
-            raise Exception("Unsupported platform")
+
 
     def preset_nodes(self):
         nodes_path = self.nodes_path

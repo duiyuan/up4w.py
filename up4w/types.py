@@ -5,13 +5,13 @@ T = TypeVar("T")
 K = TypeVar("K")
 
 
-class Up4wReq(TypedDict):
+class Up4wReq(TypedDict, Generic[T]):
     req: str
-    arg: Any
-    inc: Optional[str]
+    arg: Optional[T]
+    # inc: Optional[str]
 
 
-class Up4wRes:
+class Up4wRes(Generic[K]):
     def __init__(self, rsp: str,  ret: K,  err: Optional[int] = None, inc: Optional[str] = None, fin: Optional[bool] = None):
         self.rsp = rsp
         self.ret = ret
