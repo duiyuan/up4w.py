@@ -1,7 +1,9 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 from up4w.service import UP4wServer
 from up4w.request_manager import RequestManager
 from up4w.core import Up4wCore
+
+import asyncio
 
 
 class UP4W:
@@ -31,3 +33,15 @@ class UP4W:
 
     def get_ver(self):
         return self.core.version()
+
+    def receive_message(self, callback: Callable):
+        self.manager.receive_message(callback=callback)
+        # try:
+        #     loop = asyncio.get_running_loop()
+        # except RuntimeError:
+        #     loop = None
+        # if loop and loop.is_running():
+        #     task = loop.create_task(self.manager.receive_message())
+        #     task.add_done_callback(callback)
+        # else:
+        #     asyncio.run(self.manager.receive_message(callback=callback))

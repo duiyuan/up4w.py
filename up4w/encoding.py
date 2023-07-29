@@ -12,7 +12,7 @@ class FriendlyJSON:
     helpful information in the raised error messages.
     """
     @staticmethod
-    def encode(obj: Dict[Any, Any], cls: Optional[Type[encoder]] = None) -> str:
+    def encode(obj: Dict[Any, Any], cls: Any = None) -> str:
         try:
             encoded = dumps(obj, cls=cls)
             return encoded

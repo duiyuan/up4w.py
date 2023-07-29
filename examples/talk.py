@@ -11,6 +11,11 @@ async def main():
 
     print(version)
 
+    def get_result(t):
+        print("get_result", t)
+
+    up4w.receive_message(get_result)
+
 if __name__ == "__main__":
     asyncio.run(main())
     time.sleep(15)

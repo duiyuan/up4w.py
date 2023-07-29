@@ -36,8 +36,11 @@ async def broadcast(msg: str):
     try:
         print(f"try send message to client {msg}, {len(clients)}")
         for client in clients:
-            print(f"send message to client {msg}")
-            await client.send(msg)
+            data = json.dumps({
+                "feedback": msg
+            })
+            print(f"send message to client {data}")
+            await client.send(data)
     except websockets.ConnectionClosed:
         pass
 

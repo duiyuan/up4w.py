@@ -34,5 +34,5 @@ class BaseProvider(ABC, Generic[T]):
         return FriendlyJSON.encode(data)
 
     @abstractmethod
-    def persistent_receive_message(self, callback: Callable) -> None:
+    async def persistent_receive_message(self, *, callback: Callable) -> None:
         pass

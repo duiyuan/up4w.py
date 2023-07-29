@@ -1,5 +1,7 @@
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Callable
 from re import match
+import asyncio
+
 
 from up4w.providers.ws import WSProvider
 from up4w.providers.http import HTTPProvider
@@ -10,7 +12,7 @@ T = TypeVar("T")
 K = TypeVar("K")
 
 
-class RequestManager(BaseProvider):
+class RequestManager:
     __provider: BaseProvider = None
 
     @property
@@ -33,12 +35,23 @@ class RequestManager(BaseProvider):
     def make_request(self, request_data: Up4wReq[T]) -> Up4wRes[K]:
         return self.current_provider.make_request(request_data)
 
-    def handle_message_received(self):
+    def receive_message(self, callback: Callable):
+        if not self.can_subscribe():
+            raise Exception("The provider does not support subscribe")
 
+        async def schedule():
+            if self.current_provider.persistent_receive_message is not None:
+                await self.current_provider.persistent_receive_message(
+                    callback=callback
+                )
+        loop = asyncio.get_running_loop()
 
-    def receive_message(self):
-        if self.can_subscribe():
-            self.persistent_receive_message
+        if loop and loop.is_running():
+            task = loop.create_task(schedule())
+            task.add_done_callback(lambda t: print(t))
+        else:
+            asyncio.run(schedule())
+
 
 
 

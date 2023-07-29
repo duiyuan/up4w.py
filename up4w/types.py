@@ -5,7 +5,7 @@ T = TypeVar("T")
 K = TypeVar("K")
 
 
-class Up4wReq(TypedDict, Generic[T]):
+class Up4wReq(TypedDict):
     req: str
     arg: Optional[T]
     # inc: Optional[str]
