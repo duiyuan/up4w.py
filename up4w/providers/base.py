@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 from uuid import uuid4
-from typing import TypeVar, Generic, Dict, Any
+from typing import TypeVar, Generic, Dict, Any, Callable
 
 from up4w.types import Up4wReq, Up4wRes
 from up4w.encoding import FriendlyJSON
@@ -24,9 +24,15 @@ class BaseProvider(ABC, Generic[T]):
         pass
 
     @staticmethod
+    def make_uuid() -> str:
+        return uuid4().hex
+
+    @staticmethod
     def _process_request_data(data: Dict[Any, Any]):
-        if data.get("inc") is None:
-            data["inc"] = uuid4().hex
+        # if data.get("inc") is None:
+        #     data["inc"] = uuid4().hex
         return FriendlyJSON.encode(data)
 
-
+    @abstractmethod
+    def persistent_receive_message(self, callback: Callable) -> None:
+        pass

@@ -5,13 +5,18 @@ from up4w.core import Up4wCore
 
 
 class UP4W:
-    def __init__(self, *, debug: bool = False, appdata: Optional[str] = None, **kwargs):
+    def __init__(self, *, debug: bool = False, appdata: Optional[str] = None, endpoint_3rd: str = None, **kwargs):
         self.server: UP4wServer = UP4wServer(debug=debug, appdata=appdata)
         self.kwargs = kwargs or {}
         self.endpoint = ""
+        self.endpoint_3rd = endpoint_3rd
         self.manager = None
 
-        self.__start_server()
+        if endpoint_3rd is not None:
+            self.endpoint = endpoint_3rd
+        else:
+            self.__start_server()
+
         self.manager = RequestManager(endpoint=self.endpoint, kwargs=self.kwargs)
         self.core = Up4wCore(self.manager)
 

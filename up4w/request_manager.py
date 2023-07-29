@@ -33,4 +33,12 @@ class RequestManager(BaseProvider):
     def make_request(self, request_data: Up4wReq[T]) -> Up4wRes[K]:
         return self.current_provider.make_request(request_data)
 
+    def handle_message_received(self):
+
+
+    def receive_message(self):
+        if self.can_subscribe():
+            self.persistent_receive_message
+
+
 
