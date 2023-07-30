@@ -8,7 +8,6 @@ from up4w.up4w import UP4W
 async def main():
     up4w = UP4W(endpoint_3rd="ws://localhost:8765")
     version = up4w.get_ver()
-
     print(version)
 
     def get_result(t):

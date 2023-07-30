@@ -1,6 +1,5 @@
 from typing import Optional, TypeVar, Callable
 from re import match
-import asyncio
 
 
 from up4w.providers.ws import WSProvider
@@ -38,19 +37,20 @@ class RequestManager:
     def receive_message(self, callback: Callable):
         if not self.can_subscribe():
             raise Exception("The provider does not support subscribe")
+        self.current_provider.persistent_receive_message(callback)
 
-        async def schedule():
-            if self.current_provider.persistent_receive_message is not None:
-                await self.current_provider.persistent_receive_message(
-                    callback=callback
-                )
-        loop = asyncio.get_running_loop()
-
-        if loop and loop.is_running():
-            task = loop.create_task(schedule())
-            task.add_done_callback(lambda t: print(t))
-        else:
-            asyncio.run(schedule())
+        # async def schedule():
+        #     if self.current_provider.persistent_receive_message is not None:
+        #         await self.current_provider.persistent_receive_message(
+        #             callback=callback
+        #         )
+        # loop = asyncio.get_running_loop()
+        #
+        # if loop and loop.is_running():
+        #     task = loop.create_task(schedule())
+        #     task.add_done_callback(lambda t: print(t))
+        # else:
+        #     asyncio.run(schedule())
 
 
 

@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 from uuid import uuid4
-from typing import TypeVar, Generic, Dict, Any, Callable
+from typing import TypeVar, Generic, Dict, Any, Callable, Optional
 
 from up4w.types import Up4wReq, Up4wRes
 from up4w.encoding import FriendlyJSON
@@ -34,5 +34,6 @@ class BaseProvider(ABC, Generic[T]):
         return FriendlyJSON.encode(data)
 
     @abstractmethod
-    async def persistent_receive_message(self, *, callback: Callable) -> None:
+    async def persistent_receive_message(self, callback: Optional[Callable]) -> bool:
         pass
+

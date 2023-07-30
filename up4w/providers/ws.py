@@ -1,10 +1,11 @@
 import asyncio
 import json
-import logging
+import time
+
 import websockets
 
 from up4w.types import Up4wRes, Up4wReq
-from typing import Type, Optional, TypedDict, TypeVar, Callable
+from typing import Type, Callable
 from types import TracebackType
 from threading import Thread
 from up4w.providers.base import BaseProvider
@@ -64,17 +65,15 @@ class WSProvider(BaseProvider):
         self.conn = PersistentConnection(self.endpoint, self.kwargs)
 
         super().__init__()
-        # self.receive_message()
 
-    def receive_message(self):
-        loop = asyncio.get_running_loop()
+    def persistent_receive_message(self, callback: Callable):
+        loop = WSProvider._loop
         if loop and loop.is_running():
-            task = loop.create_task(self.persistent_receive_message())
-            task.add_done_callback(lambda t: print(f"print {t}"))
+            loop.create_task(self.receive_message(callback))
         else:
-            asyncio.run(self.persistent_receive_message())
+            asyncio.run(self.receive_message(callback))
 
-    async def persistent_receive_message(self, callback: Callable):
+    async def receive_message(self, callback=None):
         async with self.conn as conn:
             async for message in conn:
                 # resp = await asyncio.wait_for(
@@ -82,8 +81,9 @@ class WSProvider(BaseProvider):
                 #     30
                 # )
                 # data = json.loads(resp)
-                callback(message)
-                print(f"persistent_receive_message received message, {message}")
+                if callback:
+                    callback(message)
+        return True
 
     def make_request(self, request_data: Up4wReq):
         future = asyncio.run_coroutine_threadsafe(
