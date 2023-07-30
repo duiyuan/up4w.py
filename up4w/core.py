@@ -1,6 +1,7 @@
 
-from typing import TypedDict, List, Optional, Any, Dict
+from typing import TypedDict, List, Optional, Any, Dict, Tuple
 from up4w.request_manager import RequestManager
+from up4w.types import Up4wReq, Up4wRes
 
 
 class MRCConfig(TypedDict):
@@ -15,7 +16,7 @@ class DVSConfig(TypedDict):
     flags: List[str]
 
 
-class Up4wjsCoreInitReq(TypedDict):
+class Up4wCoreInitReq(TypedDict):
     app_name: str
     mrc: MRCConfig
     dvs: DVSConfig
@@ -26,17 +27,26 @@ class Up4wjsCoreInitReq(TypedDict):
     pbc: dict
 
 
+class Up4wStatus(TypedDict):
+    dht_nodes: List[int]
+    initialized: bool
+    internet: str
+    modules: List[str]
+    net_time: Tuple[int, int, bool, bool]
+    swarms: Dict[str, str]
+
+
 class Up4wCore:
     def __init__(self, requester: RequestManager):
         self.requester = requester
 
-    def version(self):
+    def version(self) -> Up4wRes[str]:
         return self.requester.make_request({
             "req": "core.ver",
             "arg": None,
         })
 
-    def initialize(self, params: Up4wjsCoreInitReq):
+    def initialize(self, params: Up4wCoreInitReq) -> Up4wRes[TypedDict[str, bool]]:
         return self.requester.make_request({
             "req": "core.init",
             "arg": params,
@@ -57,5 +67,11 @@ class Up4wCore:
     def load_delayed(self):
         return self.requester.make_request({
             "req": "core.load_delayed",
+            "arg": None
+        })
+
+    def status(self) -> Up4wRes[Up4wStatus]:
+        return self.requester.make_request({
+            "req": "core.status",
             "arg": None
         })

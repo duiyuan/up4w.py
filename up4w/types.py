@@ -11,13 +11,12 @@ class Up4wReq(TypedDict):
     # inc: Optional[str]
 
 
-class Up4wRes(Generic[K]):
-    def __init__(self, rsp: str,  ret: K,  err: Optional[int] = None, inc: Optional[str] = None, fin: Optional[bool] = None):
-        self.rsp = rsp
-        self.ret = ret
-        self.err = err
-        self.inc = inc
-        self.fin = fin
+class Up4wRes(TypedDict):
+    rsp: str
+    ret: K
+    err: Optional[int]
+    inc: Optional[str]
+    fin: Optional[bool]
 
 
 class AvailableEndpoints(TypedDict):
