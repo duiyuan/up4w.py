@@ -1,5 +1,5 @@
 
-from typing import TypedDict, List, Optional, Any
+from typing import TypedDict, List, Optional, Any, Dict
 from up4w.request_manager import RequestManager
 
 

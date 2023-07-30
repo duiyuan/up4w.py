@@ -1,6 +1,5 @@
 import asyncio
 import json
-import time
 
 import websockets
 
@@ -39,7 +38,7 @@ class PersistentConnection:
         if exec_val is not None:
             try:
                 await self.ws.close()
-            except websockets.ConnectionClosed as err:
+            except websockets.ConnectionClosed:
                 pass
             except Exception:
                 pass
@@ -58,9 +57,6 @@ class WSProvider(BaseProvider):
 
         if WSProvider._loop is None:
             WSProvider._loop = get_thread_loop()
-
-        if WSProvider._message_loop is None:
-            WSProvider._message_loop = get_thread_loop()
 
         self.conn = PersistentConnection(self.endpoint, self.kwargs)
 
