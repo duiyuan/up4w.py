@@ -1,5 +1,5 @@
 
-from typing import Optional, Any
+from typing import Optional, Callable
 from up4w.request_manager import RequestManager
 
 from .types import MessageText
@@ -13,8 +13,8 @@ class Message:
     def provider(self):
         return self.requester.current_provider
 
-    def enable_received_push(self, *, conversation: Optional[str], app: Optional[str]):
-        return self.requester.make_request({
+    def enable_received_push(self, *, conversation: Optional[str] = None, app: Optional[str] = None):
+        self.requester.make_request({
             "req": "msg.receive_push",
             "arg": {
                 "conversation": conversation,
@@ -30,3 +30,8 @@ class Message:
                 "content_type": 13
             }
         })
+
+    def receive_message(self, callback: Callable, *, conversation: Optional[str] = None, app: Optional[str] = None):
+        self.enable_received_push(conversation=conversation, app=app)
+        self.requester.receive_message(callback=callback)
+

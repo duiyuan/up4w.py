@@ -70,16 +70,19 @@ class WSProvider(BaseProvider):
             asyncio.run(self.receive_message(callback))
 
     async def receive_message(self, callback=None):
-        async with self.conn as conn:
-            async for message in conn:
-                # resp = await asyncio.wait_for(
-                #     conn.recv(),
-                #     30
-                # )
-                # data = json.loads(resp)
-                if callback:
-                    callback(message)
-        return True
+        try:
+            async with self.conn as conn:
+                async for message in conn:
+                    # resp = await asyncio.wait_for(
+                    #     conn.recv(),
+                    #     30
+                    # )
+                    # data = json.loads(resp)
+                    if callback:
+                        callback(message)
+            return True
+        except websockets.ConnectionClosed:
+            pass
 
     def make_request(self, request_data: Up4wReq):
         future = asyncio.run_coroutine_threadsafe(

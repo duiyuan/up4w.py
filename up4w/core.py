@@ -1,5 +1,5 @@
 
-from typing import TypedDict, List, Optional, Any, Dict, Tuple
+from typing import TypedDict, List, Optional, Any, Dict, Tuple, Dict
 from up4w.request_manager import RequestManager
 from up4w.types import Up4wReq, Up4wRes
 
@@ -46,7 +46,7 @@ class Up4wCore:
             "arg": None,
         })
 
-    def initialize(self, params: Up4wCoreInitReq) -> Up4wRes[TypedDict[str, bool]]:
+    def initialize(self, params: Up4wCoreInitReq) -> Up4wRes[Dict[str, bool]]:
         return self.requester.make_request({
             "req": "core.init",
             "arg": params,

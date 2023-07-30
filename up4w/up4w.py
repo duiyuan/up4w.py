@@ -2,6 +2,7 @@ from typing import Dict, Optional, Callable
 from up4w.service import UP4wServer
 from up4w.request_manager import RequestManager
 from up4w.core import Up4wCore
+from up4w.message import Message
 
 
 class UP4W:
@@ -19,6 +20,7 @@ class UP4W:
 
         self.manager = RequestManager(endpoint=self.endpoint, kwargs=self.kwargs)
         self.core = Up4wCore(self.manager)
+        self.message = Message(self.manager)
 
     def __start_server(self) -> str:
         resp = self.server.run()
@@ -31,6 +33,3 @@ class UP4W:
 
     def get_ver(self):
         return self.core.version()
-
-    def receive_message(self, callback: Callable):
-        self.manager.receive_message(callback=callback)
