@@ -13,6 +13,7 @@ pip install up4w
 ## Data response structure
 
 All interfaces are implemented to return a standard json-object. The data structure returned is as follows:
+
 | Field | Type | Description | Required |
 |----|----|----|---|
 | rsp | string | The module action |Y|
@@ -177,8 +178,7 @@ up4w.shutdown()
 
 ### up4w.social
 
-#### up4w.social.signin_with_seed(seed, *，name: str = None, gender: int = None,
-                     geolocation: int = None, greeting_secret: str = None)
+#### up4w.social.signin_with_seed(seed, *，name: str = None, gender: int = None,geolocation: int = None, greeting_secret: str = None)
 
 Set current sign-in user by seed(private key)
 
