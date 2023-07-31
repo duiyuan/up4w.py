@@ -81,7 +81,6 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
     time.sleep(15)
-
 ```
 
 ## up4w
@@ -219,8 +218,7 @@ print(user)
 
 Same to `up4w.siginWithSeed`
 
-#### up4w.social.add_user( pk: str, *, name: str = None, gender: int = None,
-             geolocation: int = None, greeting_secret: str = None)
+#### up4w.social.add_user( pk: str, *, name: str = None, gender: int = None, geolocation: int = None, greeting_secret: str = None)
 
 Add a new user in the contact list, no return. This method will not send a greeting message to the user.
 
