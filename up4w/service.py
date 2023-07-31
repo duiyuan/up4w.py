@@ -1,10 +1,17 @@
-from ctypes import CDLL
 import os
 import shutil
-from up4w.types import Up4wServiceRes
+
+from ctypes import CDLL
+from typing import Dict, TypedDict, Union, LiteralString
 from multiprocessing import Process, Pipe, Event
 from os.path import join, exists, abspath, dirname, expanduser
 from sys import platform
+from up4w.types import Up4wServiceRes
+
+
+class AvailableEndpoint(TypedDict):
+    http: str
+    ws: str
 
 
 def start_child_process(child_conn, apppath, dll_path):
@@ -33,6 +40,10 @@ class UP4wServer:
         self.nodes_path = abspath(join(current_dir, "nodes"))
         self.appdata = appdata
         self.child = None
+        self.available_endpoints: AvailableEndpoint = {
+            "http": "",
+            "ws": ""
+        }
 
         # windows -> dll
         if platform == "win32":
@@ -54,8 +65,6 @@ class UP4wServer:
 
         self.parent_conn, self.child_conn = Pipe()
         self.result_event = Event()
-
-
 
     def preset_nodes(self):
         nodes_path = self.nodes_path

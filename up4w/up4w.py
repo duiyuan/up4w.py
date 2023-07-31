@@ -1,5 +1,5 @@
 from typing import Dict, Optional
-from up4w.service import UP4wServer
+from up4w.service import UP4wServer, AvailableEndpoint
 from up4w.request_manager import RequestManager
 from up4w.core import Up4wCore, Up4wCoreInitReq
 from up4w.message import Message
@@ -16,6 +16,10 @@ class UP4W:
         self.endpoint = ""
         self.endpoint_3rd = endpoint_3rd
         self.manager = None
+        self.available_endpoints: AvailableEndpoint = {
+            "http": "",
+            "ws": ""
+        }
 
         # If the 'endpoint_3rd' parameter is specified, the internal 'UP4W Service' process will not run anymore.
         if endpoint_3rd is not None:
@@ -32,8 +36,10 @@ class UP4W:
 
     def __start_server(self) -> str:
         resp = self.server.run()
-        ws_endpoint = resp["available_endpoints"]["ws"]
+        available_endpoints = resp["available_endpoints"]
+        ws_endpoint = available_endpoints["ws"]
         self.endpoint: str = ws_endpoint
+        self.available_endpoints = available_endpoints
         return self.endpoint
 
     def get_joined_swarm(self) -> Dict[str, SwarmNodes]:
