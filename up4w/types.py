@@ -26,3 +26,9 @@ class AvailableEndpoints(TypedDict):
 
 class Up4wServiceRes(TypedDict):
     available_endpoints: AvailableEndpoints
+
+
+class SwarmNodes(TypedDict):
+    backward_peers: int
+    default: bool
+    forward_peers: int

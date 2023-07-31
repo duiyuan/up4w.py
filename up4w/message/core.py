@@ -14,21 +14,15 @@ class Message:
         return self.requester.current_provider
 
     def enable_received_push(self, *, conversation: Optional[str] = None, app: Optional[str] = None):
-        self.requester.make_request({
-            "req": "msg.receive_push",
-            "arg": {
-                "conversation": conversation,
-                "app": app
-            }
+        self.requester.make_request("msg.receive_push", {
+            "conversation": conversation,
+            "app": app
         })
 
     def send_text(self, params: MessageText):
-        return self.requester.make_request({
-            "req": "msg.text",
-            "arg": {
-                **params,
-                "content_type": 13
-            }
+        return self.requester.make_request("msg.text", {
+            **params,
+            "content_type": 13
         })
 
     def receive_message(self, callback: Callable, *, conversation: Optional[str] = None, app: Optional[str] = None):

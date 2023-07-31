@@ -28,5 +28,11 @@ class BadResponseFormat(Up4wException):
     pass
 
 
-
+class BadParameters(Up4wException):
+    """
+    Raised when parameters do not match the function signature
+    """
+    def __init__(self, msg: str):
+        message = f"Bad parameters: {msg}"
+        super().__init__(message)
 

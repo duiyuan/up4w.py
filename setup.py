@@ -6,7 +6,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'up4w-py'
+NAME = 'up4w'
 DESCRIPTION = 'A python library interact with UP4w network'
 URL = 'https://github.com/up4w/up4w.py'
 EMAIL = 'bornforthis@bornforthis.cn'
