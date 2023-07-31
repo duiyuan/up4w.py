@@ -198,8 +198,7 @@ print(user)
 
 - pk - `string` a public key that has been encoded using `Base64`
 
-#### up4w.social.signin_with_mnemonic(words, *，name: str = None, gender: int = None,
-                     geolocation: int = None, greeting_secret: str = None)
+#### up4w.social.signin_with_mnemonic(words, *，name: str = None, gender: int = None, geolocation: int = None, greeting_secret: str = None)
 
 Set current sign-in user by mnemonic words, this function is equivalent to `up4w.siginWithSeed`, but the difference lies in the input parameter.
 
@@ -212,7 +211,10 @@ print(user)
 ##### Parameters
 
 - words - `string` A list of 18 mnemonic words separated by spaces.
-- profie - `object`Same to `siginWithSeed`
+- name - `str` `optional`
+- gender - `int` `optional`
+- geolocation - `int` `optional`
+- greeting_secret - `int` `optional`
 
 ##### Returns
 
