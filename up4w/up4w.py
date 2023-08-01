@@ -51,14 +51,14 @@ class UP4W:
                             hob: Dict = None, lsm: Dict = None, mlt: Dict = None, gdp: Dict = None, pbc: Dict = None):
         status = self.core.status()
         params = {
-            app_name,
-            mrc,
-            dvs,
-            hob,
-            lsm,
-            mlt,
-            gdp,
-            pbc,
+            "app_name": app_name,
+            "mrc": mrc,
+            "dvs": dvs,
+            "hob": hob,
+            "lsm": lsm,
+            "mlt": mlt,
+            "gdp": gdp,
+            "pbc": pbc,
         }
         if not status["ret"]["initialized"]:
             self.core.initialize(params)

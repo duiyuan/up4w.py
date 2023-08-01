@@ -24,16 +24,16 @@ class BaseProvider(ABC, Generic[T]):
         pass
 
     @staticmethod
-    def make_uuid() -> str:
-        return uuid4().hex
-
-    @staticmethod
     def _process_request_data(data: Dict[Any, Any]):
-        # if data.get("inc") is None:
-        #     data["inc"] = uuid4().hex
+        if data.get("inc") is None:
+            data["inc"] = uuid4().hex
         return FriendlyJSON.encode(data)
 
     @abstractmethod
     async def persistent_receive_message(self, callback: Optional[Callable]) -> bool:
         pass
+
+    @staticmethod
+    def make_uuid() -> str:
+        return uuid4().hex
 
