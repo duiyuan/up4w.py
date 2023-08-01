@@ -19,7 +19,7 @@ class DVSConfig(TypedDict):
 class Up4wCoreInitReq(TypedDict):
     app_name: str
     mrc: MRCConfig
-    dvs: DVSConfig
+    dvs: Optional[DVSConfig]
     hob: dict
     lsm: dict
     mlt: dict
@@ -43,7 +43,7 @@ class Up4wCore:
     def version(self) -> Up4wRes[str]:
         return self.requester.make_request("core.ver", None)
 
-    def initialize(self, params: Up4wCoreInitReq) -> Up4wRes[Dict[str, bool]]:
+    def initialize(self, params) -> Up4wRes[Dict[str, bool]]:
         return self.requester.make_request("core.init", params)
 
     def term(self):

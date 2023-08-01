@@ -1,7 +1,7 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from up4w.service import UP4wServer
 from up4w.request_manager import RequestManager
-from up4w.core import Up4wCore, Up4wCoreInitReq
+from up4w.core import Up4wCore, MRCConfig, DVSConfig
 from up4w.message import Message
 from up4w.social import Social
 from up4w.swarm import Swarm
@@ -40,8 +40,19 @@ class UP4W:
         resp = self.core.status()
         return resp["ret"]["swarms"]
 
-    def wait_for_initialize(self, params: Up4wCoreInitReq):
+    def wait_for_initialize(self, *, app_name: str = None, mrc: MRCConfig = None, dvs: DVSConfig = None,
+                            hob: Dict = None, lsm: Dict = None, mlt: Dict = None, gdp: Dict = None, pbc: Dict = None):
         status = self.core.status()
+        params = {
+            app_name,
+            mrc,
+            dvs,
+            hob,
+            lsm,
+            mlt,
+            gdp,
+            pbc,
+        }
         if not status["ret"]["initialized"]:
             self.core.initialize(params)
         return True

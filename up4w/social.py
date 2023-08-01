@@ -1,6 +1,7 @@
 from up4w.exception import BadParameters
 from up4w.request_manager import RequestManager
 from typing import Optional, TypedDict
+from up4w.exception import BadParameters
 
 
 class Profile(TypedDict):
@@ -41,6 +42,9 @@ class Social:
 
     def add_user(self, pk: str, *, name: str = None, gender: int = None,
                  geolocation: int = None, greeting_secret: str = None):
+        if not pk:
+            raise BadParameters("add_user: the parameter `pk` is mandatory and can't absent")
+
         return self.requester.make_request("social.add_user", {
             "pk": pk,
             "name": name,
@@ -51,3 +55,6 @@ class Social:
 
     def remove_user(self, pk: str):
         return self.requester.make_request("social.remove_user", pk)
+
+
+

@@ -55,8 +55,6 @@ class UP4wServer:
         self.parent_conn, self.child_conn = Pipe()
         self.result_event = Event()
 
-
-
     def preset_nodes(self):
         nodes_path = self.nodes_path
         with os.scandir(nodes_path) as files:
