@@ -32,10 +32,17 @@ class BaseProvider(ABC, Generic[T]):
         return uuid4().hex
 
     @staticmethod
-    def _process_request_data(data: Dict[Any, Any]):
-        if data.get("inc") is None:
-            data["inc"] = uuid4().hex
-        return FriendlyJSON.encode(data)
+    def _process_request_data(params):
+        if params.get("inc") is None:
+            params["inc"] = uuid4().hex
+
+        is_dict = isinstance(params["arg"], dict)
+        if is_dict:
+            copy = params["arg"].copy()
+            for k, v in copy.items():
+                if v is None:
+                    del params["arg"][k]
+        return FriendlyJSON.encode(params)
 
     @staticmethod
     def _process_response_data(data: str):

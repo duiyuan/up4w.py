@@ -61,8 +61,8 @@ class UP4W:
             "pbc": pbc,
         }
         if not status["ret"]["initialized"]:
-            self.core.initialize(params)
-        return True
+            return self.core.initialize(params)
+        return status
 
     def stop_server(self):
         self.server.stop()

@@ -81,6 +81,8 @@ class WSProvider(BaseProvider):
                     callback = self.process_message_callback
                     data = FriendlyJSON.decode(message)
                     uid = data.get("inc")
+                    if not uid:
+                        print(f"no inc: {message}")
                     if uid:
                         self.cached[uid] = message
                         if self.waiters.get(uid):
@@ -103,7 +105,8 @@ class WSProvider(BaseProvider):
         if not request_data.get("inc"):
             request_data["inc"] = self.make_uuid()
 
-        data = FriendlyJSON.encode(request_data)
+        # data = FriendlyJSON.encode(request_data)
+        data = self._process_request_data(request_data)
         async with self.conn as conn:
             await asyncio.wait_for(
                 conn.send(data),
