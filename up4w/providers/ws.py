@@ -1,13 +1,14 @@
 import asyncio
-import json
-
+import time
 import websockets
 
-from up4w.types import Up4wRes, Up4wReq
-from typing import Type, Callable
+from typing import Type, Callable, Dict
+from up4w.encoding import FriendlyJSON
 from types import TracebackType
 from threading import Thread
 from up4w.providers.base import BaseProvider
+from uuid import uuid4
+from up4w.types import Up4wRes, Up4wReq
 
 
 def start_event_loop(loop: asyncio.AbstractEventLoop) -> None:
@@ -16,9 +17,9 @@ def start_event_loop(loop: asyncio.AbstractEventLoop) -> None:
     loop.close()
 
 
-def get_thread_loop() -> asyncio.AbstractEventLoop:
+def get_thread_loop(name: str) -> asyncio.AbstractEventLoop:
     new_loop = asyncio.new_event_loop()
-    thread = Thread(target=start_event_loop, args=(new_loop,), daemon=True)
+    thread = Thread(target=start_event_loop, name=name, args=(new_loop,), daemon=True)
     thread.start()
     return new_loop
 
@@ -40,47 +41,53 @@ class PersistentConnection:
                 await self.ws.close()
             except websockets.ConnectionClosed:
                 pass
-            except Exception:
-                pass
             finally:
                 self.ws = None
 
 
 class WSProvider(BaseProvider):
-    _loop: asyncio.AbstractEventLoop = get_thread_loop()
-    _message_loop: asyncio.AbstractEventLoop = get_thread_loop()
+    _loop: asyncio.AbstractEventLoop = None
 
     def __init__(self, *, endpoint: str, timeout: int = None, kwargs):
         self.endpoint = endpoint
         self.timeout = timeout
         self.kwargs = kwargs or {}
+        self.cached: Dict[str, str] = {}
+        self.waiters: Dict[str, asyncio.Future] = {}
+        self.process_message_callback = None
 
-        if WSProvider._loop is None:
-            WSProvider._loop = get_thread_loop()
+        if not WSProvider._loop:
+            WSProvider._loop = get_thread_loop("loop_for_request")
 
         self.conn = PersistentConnection(self.endpoint, self.kwargs)
 
+        asyncio.run_coroutine_threadsafe(
+            self.process_message(),
+            WSProvider._loop
+        )
+        # Sleep for 1 second for the eventloop is ready in specified thread
+        # asyncio.run_coroutine_threadsafe didn't guarantee that
+        time.sleep(1)
+
         super().__init__()
 
-    def persistent_receive_message(self, callback: Callable):
-        loop = WSProvider._loop
-        if loop and loop.is_running():
-            loop.create_task(self.receive_message(callback))
-        else:
-            asyncio.run(self.receive_message(callback))
+    def receive_message(self, callback: Callable):
+        self.process_message_callback = callback
 
-    async def receive_message(self, callback=None):
+    async def process_message(self):
         try:
             async with self.conn as conn:
                 async for message in conn:
-                    # resp = await asyncio.wait_for(
-                    #     conn.recv(),
-                    #     30
-                    # )
-                    # data = json.loads(resp)
-                    if callback:
+                    callback = self.process_message_callback
+                    data = FriendlyJSON.decode(message)
+                    uid = data.get("inc")
+                    if uid:
+                        self.cached[uid] = message
+                        if self.waiters.get(uid):
+                            self.waiters[uid].set_result(message)
+                            del self.waiters[uid]
+                    elif callback:
                         callback(message)
-            return True
         except websockets.ConnectionClosed:
             pass
 
@@ -93,17 +100,20 @@ class WSProvider(BaseProvider):
         return data
 
     async def coroutine_make_request(self, request_data: Up4wReq) -> Up4wRes:
-        request_data = self._process_request_data(request_data)
+        if not request_data.get("inc"):
+            request_data["inc"] = uuid4().hex
+
+        data = FriendlyJSON.encode(request_data)
         async with self.conn as conn:
             await asyncio.wait_for(
-                conn.send(request_data),
+                conn.send(data),
                 self.timeout
             )
-            resp = await asyncio.wait_for(
-                conn.recv(),
-                self.timeout
-            )
-            return json.loads(resp)
+        future = asyncio.Future()
+        self.waiters[request_data["inc"]] = future
+        # await asyncio.sleep(0)
+        await future
+        return future.result()
 
     def can_subscribe(self) -> bool:
         return True

@@ -34,13 +34,14 @@ class RequestManager:
     def make_request(self, req: str, arg: T = None) -> Up4wRes[K]:
         return self.current_provider.make_request({
             "req": req,
-            "arg": arg
+            "arg": arg,
+            "inc": None
         })
 
     def receive_message(self, callback: Callable):
         if not self.can_subscribe():
             raise Exception("The provider does not support subscribe")
-        self.current_provider.persistent_receive_message(callback)
+        self.current_provider.receive_message(callback)
 
 
 

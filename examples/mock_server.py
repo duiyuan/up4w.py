@@ -3,12 +3,11 @@ import websockets
 import asyncio
 import json
 import threading
-from typing import Callable
 
 clients = set()
 
 
-async def set_interval(interval: int, func: Callable):
+async def set_interval(interval: int, func):
     async def run():
         msg = time.asctime()
         await func(msg)
@@ -24,8 +23,11 @@ async def echo(ws):
     try:
         async for message in ws:
             msg = json.loads(message)
-            msg["feedback"] = time.asctime()
+            msg["current_time"] = time.asctime()
+            # send message back
+            data = json.dumps(msg)
             await ws.send(json.dumps(msg))
+            print(f"Server feedback {data}`")
     except websockets.ConnectionClosed:
         pass
     finally:
@@ -34,24 +36,22 @@ async def echo(ws):
 
 async def broadcast(msg: str):
     try:
-        print(f"try send message to client {msg}, {len(clients)}")
+        print(f"Server check before broadcast, {len(clients)}")
         for client in clients:
             data = json.dumps({
-                "feedback": msg
+                "current_time": msg
             })
-            print(f"send message to client {data}")
+            print(f"Server side broadcast message to client {msg}")
             await client.send(data)
     except websockets.ConnectionClosed:
         pass
 
 
 async def main():
-    async with websockets.serve(echo, "localhost", "8765"):
+    async with websockets.serve(echo, "localhost", "9801"):
+        print("websocket server wake up")
+        # run forever, broadcast time to every client per 5 seconds
         await set_interval(5, broadcast)
-        # run forever
-        # while True:
-        #     time.sleep(5)
-        #     await broadcast(time.asctime())
         await asyncio.Future()
 
 asyncio.run(main())

@@ -23,17 +23,17 @@ class BaseProvider(ABC, Generic[T]):
     def can_subscribe(self) -> bool:
         pass
 
-    @staticmethod
-    def _process_request_data(data: Dict[Any, Any]):
-        if data.get("inc") is None:
-            data["inc"] = uuid4().hex
-        return FriendlyJSON.encode(data)
-
     @abstractmethod
-    async def persistent_receive_message(self, callback: Optional[Callable]) -> bool:
+    def receive_message(self, callback: Callable):
         pass
 
     @staticmethod
     def make_uuid() -> str:
         return uuid4().hex
+
+    @staticmethod
+    def _process_request_data(data: Dict[Any, Any]):
+        if data.get("inc") is None:
+            data["inc"] = uuid4().hex
+        return FriendlyJSON.encode(data)
 
