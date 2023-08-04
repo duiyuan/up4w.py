@@ -52,7 +52,6 @@ class WSProvider(BaseProvider):
         self.endpoint = endpoint
         self.timeout = timeout
         self.kwargs = kwargs or {}
-        self.cached: Dict[str, str] = {}
         self.waiters: Dict[str, asyncio.Future] = {}
         self.process_message_callback = None
 
@@ -84,7 +83,6 @@ class WSProvider(BaseProvider):
                     if not uid:
                         print(f"no inc: {message}")
                     if uid:
-                        self.cached[uid] = message
                         if self.waiters.get(uid):
                             self.waiters[uid].set_result(message)
                             del self.waiters[uid]
