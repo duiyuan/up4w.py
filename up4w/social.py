@@ -28,12 +28,18 @@ class Social:
                geolocation: int = None, greeting_secret: str = None):
         if seed is None and mnemonic is None:
             raise BadParameters("You should provide at least one of the two parameters, 'seed' and 'mnemonic")
-        return self.requester.make_request("social.signin", {
+        params = {
             "name": name,
             "gender": gender,
             "geolocation": geolocation,
             "greeting_secret": greeting_secret
-        })
+        }
+        if seed:
+            params["seed"] = seed
+        if mnemonic:
+            params["mnemonic"] = seed
+
+        return self.requester.make_request("social.signin", params)
 
     def signin_with_mnemonic(self, mnemonic: str, *, name: str = None, gender: int = None,
                              geolocation: int = None, greeting_secret: str = None):

@@ -27,7 +27,7 @@ async def echo(ws):
             # send message back
             data = json.dumps(msg)
             await ws.send(json.dumps(msg))
-            print(f"Server feedback {data}`")
+            print(f"Server feed {data}`")
     except websockets.ConnectionClosed:
         pass
     finally:
@@ -48,8 +48,8 @@ async def broadcast(msg: str):
 
 
 async def main():
-    async with websockets.serve(echo, "localhost", "9801"):
-        print("websocket server wake up")
+    async with websockets.serve(echo, "localhost", "9801") as server:
+        print(f"websocket server wake up: ws://localhost:9801")
         # run forever, broadcast time to every client per 5 seconds
         await set_interval(5, broadcast)
         await asyncio.Future()

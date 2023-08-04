@@ -101,7 +101,7 @@ class WSProvider(BaseProvider):
 
     async def coroutine_make_request(self, request_data: Up4wReq) -> Up4wRes:
         if not request_data.get("inc"):
-            request_data["inc"] = uuid4().hex
+            request_data["inc"] = self.make_uuid()
 
         data = FriendlyJSON.encode(request_data)
         async with self.conn as conn:
@@ -113,7 +113,8 @@ class WSProvider(BaseProvider):
         self.waiters[request_data["inc"]] = future
         # await asyncio.sleep(0)
         await future
-        return future.result()
+        result = future.result()
+        return self._process_response_data(result)
 
     def can_subscribe(self) -> bool:
         return True

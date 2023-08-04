@@ -37,3 +37,7 @@ class BaseProvider(ABC, Generic[T]):
             data["inc"] = uuid4().hex
         return FriendlyJSON.encode(data)
 
+    @staticmethod
+    def _process_response_data(data: str):
+        return FriendlyJSON.decode(data)
+
