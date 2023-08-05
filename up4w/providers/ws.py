@@ -1,13 +1,14 @@
 import asyncio
 import time
 import websockets
+import logging
 
 from typing import Type, Callable, Dict
 from up4w.encoding import FriendlyJSON
 from types import TracebackType
 from threading import Thread
 from up4w.providers.base import BaseProvider
-from uuid import uuid4
+from up4w.exception import ProviderFailToCloseError, ProviderConnectionError
 from up4w.types import Up4wRes, Up4wReq
 
 
@@ -25,6 +26,8 @@ def get_thread_loop(name: str) -> asyncio.AbstractEventLoop:
 
 
 class PersistentConnection:
+    logger = logging.getLogger("up4w.PersistentConnection")
+
     def __init__(self, endpoint: str, kwargs) -> None:
         self.ws: websockets.WebSocketClientProtocol = None
         self.endpoint = endpoint
@@ -37,16 +40,22 @@ class PersistentConnection:
 
     async def __aexit__(self, exec_type: Type[BaseException], exec_val: BaseException,  exec_traceback: TracebackType):
         if exec_val is not None:
+            self.logger.warning(f"PersistentConnection.__aexit__: {str(exec_val)}")
             try:
                 await self.ws.close()
             except websockets.ConnectionClosed:
                 pass
+            except Exception as err:
+                raise ProviderFailToCloseError(err)
             finally:
+                if isinstance(exec_val, websockets.ConnectionClosedError):
+                    self.logger.error("up4w close connection without a close frame")
                 self.ws = None
 
 
 class WSProvider(BaseProvider):
     _loop: asyncio.AbstractEventLoop = None
+    logger = logging.getLogger("WSProvider")
 
     def __init__(self, *, endpoint: str, timeout: int = None, kwargs):
         self.endpoint = endpoint
@@ -80,8 +89,8 @@ class WSProvider(BaseProvider):
                     callback = self.process_message_callback
                     data = FriendlyJSON.decode(message)
                     uid = data.get("inc")
-                    if not uid:
-                        print(f"no inc: {message}")
+                    # if not uid:
+                    #     print(f"no inc: {message}")
                     if uid:
                         if self.waiters.get(uid):
                             self.waiters[uid].set_result(message)
@@ -89,7 +98,7 @@ class WSProvider(BaseProvider):
                     elif callback:
                         callback(message)
         except websockets.ConnectionClosed:
-            pass
+            self.logger.error("websockets.ConnectionClosed")
 
     def make_request(self, request_data: Up4wReq):
         future = asyncio.run_coroutine_threadsafe(

@@ -14,6 +14,13 @@ class Up4wException(Exception):
     """
 
 
+class ProviderFailToCloseError(Up4wException):
+    """
+    Raise when fail to close connection
+    """
+    pass
+
+
 class ProviderConnectionError(Up4wException):
     """
     Raised when unable to connect to UP4W provider

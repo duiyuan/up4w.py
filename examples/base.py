@@ -13,7 +13,9 @@ def process_message(message):
 
 
 def main():
+    # up4w = UP4W(endpoint_3rd="ws://127.0.0.1:62688/api")
     up4w = UP4W()
+
     print(f"▶▶ current available endpoint: {up4w.available_endpoints}")
 
     # Get UP4W Version by a simple request
