@@ -6,6 +6,7 @@ from up4w.providers.ws import WSProvider
 from up4w.providers.http import HTTPProvider
 from up4w.providers.base import BaseProvider
 from up4w.types import Up4wRes, Up4wReq
+from up4w.exception import BadParameters
 
 T = TypeVar("T")
 K = TypeVar("K")
@@ -32,6 +33,8 @@ class RequestManager:
         return self.__provider.can_subscribe()
 
     def make_request(self, req: str, arg: T = None) -> Up4wRes[K]:
+        if not isinstance(req, str):
+            raise BadParameters(f"parameter `req` need be string, got {req}")
         return self.current_provider.make_request({
             "req": req,
             "arg": arg,
