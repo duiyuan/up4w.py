@@ -36,7 +36,13 @@ class BaseProvider(ABC, Generic[T]):
         if params.get("inc") is None:
             params["inc"] = uuid4().hex
 
-        is_dict = isinstance(params["arg"], dict)
+        # remove key if value is None in params
+        for m, n in params.copy().items():
+            if n is None:
+                del params[m]
+
+        # remove key if value is None in params.arg
+        is_dict = isinstance(params.get("arg"), dict)
         if is_dict:
             copy = params["arg"].copy()
             for k, v in copy.items():
