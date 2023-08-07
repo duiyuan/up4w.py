@@ -13,7 +13,10 @@ def process_message(message):
 
 
 def main():
-    # up4w = UP4W(endpoint_3rd="ws://127.0.0.1:62688/api")
+    # using local websocket webserver in examples/broadcast/server.py
+    # up4w = UP4W(endpoint_3rd_party="ws://127.0.0.1:9801")
+
+    # Using build-in UP4W dll if leave `endpoint_3rd_party` along
     up4w = UP4W()
 
     print(f"▶▶ current available endpoint: {up4w.available_endpoints}")

@@ -23,6 +23,10 @@ async def echo(ws):
     try:
         async for message in ws:
             msg = json.loads(message)
+            msg["ret"] = {
+                "initialized": True
+            }
+            msg["res"] = msg.get("req")
             msg["current_time"] = time.asctime()
             # send message back
             data = json.dumps(msg)
@@ -39,6 +43,8 @@ async def broadcast(msg: str):
         print(f"Server check before broadcast, {len(clients)}")
         for client in clients:
             data = json.dumps({
+                "res": "core.push",
+                "ret": {},
                 "current_time": msg
             })
             print(f"Server side broadcast message to client {msg}")
@@ -50,7 +56,6 @@ async def broadcast(msg: str):
 async def main():
     async with websockets.serve(echo, "localhost", "9801") as server:
         print(f"websocket server wake up: ws://localhost:9801")
-        # run forever, broadcast time to every client per 5 seconds
         await set_interval(5, broadcast)
         await asyncio.Future()
 

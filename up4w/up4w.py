@@ -11,11 +11,11 @@ from up4w.types import SwarmNodes
 
 
 class UP4W:
-    def __init__(self, *, debug: bool = False, appdata: Optional[str] = None, endpoint_3rd: str = None, **kwargs):
+    def __init__(self, *, debug: bool = False, appdata: Optional[str] = None, endpoint_3rd_party: str = None, **kwargs):
         self.server: UP4wServer = UP4wServer(debug=debug, appdata=appdata)
         self.kwargs = kwargs or {}
         self.endpoint = ""
-        self.endpoint_3rd = endpoint_3rd
+        self.endpoint_3rd = endpoint_3rd_party
         self.manager = None
         self.available_endpoints: AvailableEndpoint = {
             "http": "",
@@ -23,8 +23,8 @@ class UP4W:
         }
 
         # If the 'endpoint_3rd' parameter is specified, the internal 'UP4W Service' process will not run anymore.
-        if endpoint_3rd is not None:
-            self.endpoint = endpoint_3rd
+        if endpoint_3rd_party is not None:
+            self.endpoint = endpoint_3rd_party
         else:
             self.__start_server()
 
