@@ -28,6 +28,13 @@ class ProviderConnectionError(Up4wException):
     pass
 
 
+class ProviderError(Up4wException):
+    """
+    Raised when unable create Provider
+    """
+    pass
+
+
 class BadResponseFormat(Up4wException):
     """
     Raised when a response comes back in an unexpected format
@@ -42,4 +49,5 @@ class BadParameters(Up4wException):
     def __init__(self, msg: str):
         message = f"Bad parameters: {msg}"
         super().__init__(message)
+
 

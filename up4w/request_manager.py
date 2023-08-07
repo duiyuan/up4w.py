@@ -6,7 +6,7 @@ from up4w.providers.ws import WSProvider
 from up4w.providers.http import HTTPProvider
 from up4w.providers.base import BaseProvider
 from up4w.types import Up4wRes, Up4wReq
-from up4w.exception import BadParameters
+from up4w.exception import BadParameters, ProviderError
 
 T = TypeVar("T")
 K = TypeVar("K")
@@ -27,7 +27,7 @@ class RequestManager:
         elif match(r"wss?://", self.endpoint):
             self.__provider = WSProvider(endpoint=self.endpoint, kwargs=self.kwargs)
         else:
-            raise Exception(f"No matched provider for endpoint: {self.endpoint}")
+            raise ProviderError(f"No matched provider for endpoint: {self.endpoint}")
 
     def can_subscribe(self) -> bool:
         return self.__provider.can_subscribe()
@@ -43,7 +43,7 @@ class RequestManager:
 
     def receive_message(self, callback: Callable):
         if not self.can_subscribe():
-            raise Exception("The provider does not support subscribe")
+            raise ProviderError("The provider does not support subscription")
         self.current_provider.receive_message(callback)
 
 

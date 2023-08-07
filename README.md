@@ -310,7 +310,7 @@ The `message` looks like:
 
 - callback: `function(message)`
 
-  - swram - `string` the swarm DHT address in base16, or the alias as set by join swarm request (`req:"swarm.join"`, [UEP-21](https://github.com/up4w/up4w-core/blob/master/docs/uep_0021.md))
+  - swarm - `string` the swarm DHT address in base16, or the alias as set by join swarm request (`req:"swarm.join"`, [UEP-21](https://github.com/up4w/up4w-core/blob/master/docs/uep_0021.md))
   - `id` the id of the message in the scope of current swarm, a `uint64_t` in string.
   - timestamp - `number` of the message in millisecond
   - sender -`string`: the public key of the sender in base64
