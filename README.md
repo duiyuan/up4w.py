@@ -117,12 +117,12 @@ none
 
 a version string
 
-#### up4w.wait_for_initialize(params)
+#### wait_for_initialize(self, *, app_name: str = None, mrc: MRCConfig = None, dvs: DVSConfig = None, hob: Dict = None, lsm: Dict = None, mlt: Dict = None, gdp: Dict = None, pbc: Dict = None):
 
 Initialize all desired modules.
 
 ```
-result = up4w.wait_for_initialize({
+result = up4w.wait_for_initialize(**{
   app_name: 'deso',
   mrc: {
     msgs_dir: ':mem',
