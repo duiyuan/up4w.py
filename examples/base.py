@@ -1,6 +1,8 @@
+import json
 import time
 from up4w.up4w import UP4W
 from os.path import dirname,join
+from uuid import uuid4
 
 robot_address = "9S27676+Zx0Skrpr8hAEgPBS+9XgY0rt9jz2rHEZFeg="
 robot_greeting_secret = "PJn3MTFwwXHZCSuYVFHO6OvOQoJSywpSATR1EZvj0Ho="
@@ -14,7 +16,7 @@ def process_message(message):
 
 def main():
     # using local websocket webserver in examples/broadcast/server.py
-    # up4w = UP4W(endpoint_3rd_party="ws://127.0.0.1:9801")
+    # up4w = UP4W(endpoint_3rd_party="ws://127.0.0.1:9801/api")
 
     # Using build-in UP4W dll if leave `endpoint_3rd_party` along
     up4w = UP4W()
@@ -56,10 +58,14 @@ def main():
     print("▶▶ add_user", result)
     if result.get("err"):
         return
-
+    content = {
+        "requestId": uuid4().hex,
+        "message": "51 * 2 = ?",
+        "userId": "F81T729KBF799X1KQTYSD4BW4AWP1E8P9BBW7GBFTWTF2ST1EZ287Q5CVC"
+    }
     resp = up4w.message.send_text({
         "recipient": robot_address,
-        "content": "51+5=?",
+        "content": json.dumps(content),
         "app": 1,
         "action": 4096,
     })
@@ -68,4 +74,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    time.sleep(1000)
+    time.sleep(10000)

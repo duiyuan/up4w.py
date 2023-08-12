@@ -3,6 +3,7 @@ import time
 import websockets
 import logging
 
+import websockets.client as client
 from typing import Type, Callable, Dict
 from up4w.encoding import FriendlyJSON
 from types import TracebackType
@@ -35,7 +36,7 @@ class PersistentConnection:
 
     async def __aenter__(self):
         if self.ws is None:
-            self.ws = await websockets.connect(uri=self.endpoint, **self.kwargs)
+            self.ws = await client.connect(uri=self.endpoint, **self.kwargs)
         return self.ws
 
     async def __aexit__(self, exec_type: Type[BaseException], exec_val: BaseException,  exec_traceback: TracebackType):
